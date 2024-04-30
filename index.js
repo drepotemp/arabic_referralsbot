@@ -21,18 +21,6 @@ const queue = new Queue({
   interval: 3000, // Interval between dequeue operations (1 second)
 });
 
-mongoose
-  .connect(process.env.URI)
-  .then(() => {
-    app.listen(port, () => {
-      console.log(`App is listening on port ${port}`);
-    });
-    console.log("Connected to db.");
-  })
-  .catch((err) => {
-    console.log(`Error connecting to db: ${err}`);
-  });
-
 app.use(
   cors({
     origin: "*",
@@ -62,6 +50,7 @@ mongoose
   .catch((err) => {
     console.log(`Error connecting to db: ${err}`);
   });
+
 
 bot.start(async (ctx) => {
   try {
