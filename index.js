@@ -51,7 +51,6 @@ mongoose
     console.log(`Error connecting to db: ${err}`);
   });
 
-
 bot.start(async (ctx) => {
   try {
     queue.enqueue(async () => {
@@ -136,6 +135,12 @@ bot.start(async (ctx) => {
 bot.action("send_link", async (ctx) => {
   queue.enqueue(async () => {
     try {
+      //If user clicked the button after account creation
+      const userData = await checkIfUserExists(ctx.from.id);
+      if (userData) {
+        return showAccountInfo(ctx, userData);
+      }
+
       const newReferralLink = `t.me/FIB_Prize_Bot?start=${uuidv1()}`;
       const newUser = new User({
         chatId: ctx.from.id,
