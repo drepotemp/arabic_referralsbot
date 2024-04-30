@@ -7,6 +7,7 @@ const showAccountInfo = async (ctx, userData, usedALink) => {
     if (usedALink) {
       ctx.reply(part1Text, { parse_mode: "Markdown" });
     }
+const referred = userData.referralCount
 
     const replyText = `
 Keep sharing your link with others.
@@ -14,7 +15,7 @@ Keep sharing your link with others.
 \`${userData.referralLink}\` _(Tap to copy)_    
 
 
-Your have referred: *${userData.referralCount} people*
+Your have referred: *${referred==0 && `Nobody`}${referred==1 && `1 person`}${referred>1 && `${referred} people`}*
 `;
     ctx.reply(replyText, { parse_mode: "Markdown" });
   } catch (error) {
