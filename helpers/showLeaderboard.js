@@ -55,7 +55,7 @@ const showLeaderboard = async (bot, ctx) => {
     if (topReferrers.length > 0) {
         //For a private chat
       if (ctx) {
-        await ctx.reply("@lalaurd", message, { parse_mode: "Markdown" });
+        await ctx.reply(message, { parse_mode: "Markdown" });
       } else {
         //In a group chat or channel
         await bot.telegram.sendMessage("@lalaurd", message, {
