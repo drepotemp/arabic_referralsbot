@@ -65,6 +65,11 @@ mongoose
 
 bot.start(async (ctx) => {
   try {
+    const { chat } = ctx.message;
+    if (chat.type != "private") {
+      return ctx.reply("Please use that command in a private chat.");
+    }
+
     queue.enqueue(async () => {
       const userId = ctx.from.id;
       let inviteId = ctx.payload;
@@ -194,6 +199,11 @@ bot.action("send_link", async (ctx) => {
 bot.command("account_status", async (ctx) => {
   queue.enqueue(async () => {
     try {
+      const { chat } = ctx.message;
+      if (chat.type != "private") {
+        return ctx.reply("Please use that command in a private chat.");
+      }
+
       const userDetails = await User.findOne({ chatId: ctx.from.id });
       if (!userDetails) {
         return ctx.reply(
@@ -221,11 +231,11 @@ Keep sharing your link with others.
   });
 });
 
-bot.command("invite", async(ctx)=>{
-  queue.enqueue( async ()=>{
+bot.command("invite", async (ctx) => {
+  queue.enqueue(async () => {
     await showLeaderboard(bot, ctx);
-  })
-})
+  });
+});
 
 // Handle incoming messages
 bot.on("message", async (ctx) => {
