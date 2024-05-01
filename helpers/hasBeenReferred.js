@@ -1,16 +1,16 @@
 const User = require("../models/userModel");
 
-const hasBeenReferred = async (userId) => {
+const hasBeenReferred = async (chatId) => {
   try {
-    const user = await User.findOne({
-      referredUsers: { $elemMatch: { userId } },
-    });
+    // Find if any user has referred the chatId
+    const user = await User.findOne({ referredUsers: { $in: [chatId] } });
+
+    // If user is found, return true; otherwise, return false
     return { error: false, result: !!user };
-    // Returns true if user is found, false otherwise
   } catch (error) {
-    console.error("Error checking if user has been referred:", error);
+    console.error("Error checking if chatId has been referred:", error);
     return { error: true };
   }
 };
 
-module.exports = hasBeenReferred
+module.exports = hasBeenReferred;

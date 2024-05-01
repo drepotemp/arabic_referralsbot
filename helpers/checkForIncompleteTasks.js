@@ -32,6 +32,7 @@ const checkForIncompleteTasks = async (ctx, userId, clickedALink) => {
                   url: "https://t.me/FIB_Bank",
                 },
               ],
+              [{ text: "انضم لقناتنا على تلغرام", url: "t.me/FIB_Channel" }],
               [
                 {
                   text: "تابعنا على انستغرام",

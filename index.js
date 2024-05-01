@@ -14,6 +14,10 @@ const showAccountInfo = require("./helpers/showAccountInfo");
 const dontReferYourself = require("./helpers/dontReferYourself");
 const hasBeenReferred = require("./helpers/hasBeenReferred");
 const checkForIncompleteTasks = require("./helpers/checkForIncompleteTasks");
+const checkMembership = require("./helpers/checkMembership");
+const setReferredString = require("./helpers/setReferredString");
+const showLeaderboard = require("./helpers/showLeaderboard");
+const handleReferral = require("./helpers/handleReferral");
 
 // Create a queue instance
 const queue = new Queue({
@@ -46,6 +50,14 @@ mongoose
       console.log(`App is listening on port ${port}`);
     });
     console.log("Connected to db.");
+
+    //Send the leaderboard stats every 20 minutes
+    const interval = 20 * 60 * 1000; //
+    setInterval(async () => {
+      queue.enqueue(async () => {
+        await showLeaderboard(bot);
+      });
+    }, interval);
   })
   .catch((err) => {
     console.log(`Error connecting to db: ${err}`);
@@ -107,7 +119,8 @@ bot.start(async (ctx) => {
       const replyMarkup = {
         reply_markup: {
           inline_keyboard: [
-            [{ text: "انضم لقروبنا على تلغرام", url: "https://t.me/FIB_Bank" }],
+            [{ text: "انضم لقروبنا على تلغرام", url: "t.me/FIB_Bank" }],
+            [{ text: "انضم لقناتنا على تلغرام", url: "t.me/FIB_Channel" }],
             [
               {
                 text: "تابعنا على انستغرام",
@@ -141,6 +154,22 @@ bot.action("send_link", async (ctx) => {
         return showAccountInfo(ctx, userData);
       }
 
+      //Check if user has completed all tasks
+      const result = await checkMembership(ctx, ["@FIB_Bank", "@FIB_Channel"]);
+      console.log(result);
+
+      //If join check failed
+      if (!result.success) {
+        return ctx.reply("An error occured, please try again.");
+      }
+
+      //If user hasn't joined TG channel
+      if (!result.joined) {
+        return ctx.reply(
+          "You haven't completed the tasks, please join all our socials to continue."
+        );
+      }
+
       const newReferralLink = `t.me/FIB_Prize_Bot?start=${uuidv1()}`;
       const newUser = new User({
         chatId: ctx.from.id,
@@ -165,12 +194,19 @@ bot.action("send_link", async (ctx) => {
 bot.command("account_status", async (ctx) => {
   queue.enqueue(async () => {
     try {
-      const userDetails = await User.find({ chatId: ctx.from.id });
+      const userDetails = await User.findOne({ chatId: ctx.from.id });
+      if (!userDetails) {
+        return ctx.reply(
+          "You have no account yet. Please use the /start command and complete the tasks to continue."
+        );
+      }
+
+      const referred = userDetails.referralCount;
 
       const replyText = `
 Username: *${userDetails.username}*
 
-Your have referred: *${userDetails.referralCount} people*
+Your have referred: *${setReferredString(referred)}*
 
 Keep sharing your link with others.
 
@@ -185,6 +221,30 @@ Keep sharing your link with others.
   });
 });
 
+bot.action("invite", async(ctx)=>{
+  queue.enqueue( async ()=>{
+    await showLeaderboard(bot, ctx);
+  })
+})
+
+// Handle incoming messages
+bot.on("message", async (ctx) => {
+  queue.enqueue(async () => {
+    const { chat } = ctx.message;
+    if (
+      chat.type === "private" ||
+      chat.type === "group" ||
+      chat.type === "supergroup" ||
+      chat.type === "channel"
+    ) {
+      if (ctx.message.text === "/invite") {
+        // Reply to the user who sent the /invite command
+        await showLeaderboard(bot);
+      }
+    }
+  });
+});
+
 // Set bot commands for Telegram
 bot.telegram.setMyCommands([
   { command: "start", description: "Start the FIB Prize Bot" },
@@ -192,8 +252,10 @@ bot.telegram.setMyCommands([
     command: "account_status",
     description: "Check your referral account information",
   },
+  {
+    command: "invite",
+    description: "See the referral leaderboard.",
+  },
 ]);
 
 bot.launch();
-
-module.exports = bot;

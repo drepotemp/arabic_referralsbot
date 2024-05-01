@@ -1,3 +1,5 @@
+const setReferredString = require("./setReferredString");
+
 const dontReferYourself = async (ctx, accountData) => {
   try {
     const referred = accountData.referralCount
@@ -9,7 +11,7 @@ Keep sharing your link with others.
 \`${accountData.referralLink}\` _(Tap to copy)_    
 
 
-Your have referred: *${referred==0 && `Nobody`}${referred==1 && `1 person`}${referred>1 && `${referred} people`}*
+Your have referred: *${setReferredString(referred)}*
 `;
 
     ctx.reply(replyText, { parse_mode: "Markdown" });

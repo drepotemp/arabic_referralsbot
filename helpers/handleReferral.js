@@ -8,6 +8,7 @@ const handleReferral = async (ctx, linkOwnerData) => {
       referralCount: referralCount + 1,
       referredUsers: [...referredUsers, idOfReferredUser],
     });
+    console.log(updatedLinkOwnerData)
 
     await updatedLinkOwnerData.save();
 
@@ -22,6 +23,7 @@ Referred by: @${linkOwnerData.username}
       reply_markup: {
         inline_keyboard: [
           [{ text: "انضم لقروبنا على تلغرام", url: "https://t.me/FIB_Bank" }],
+          [{ text: "انضم لقناتنا على تلغرام", url: "t.me/FIB_Channel" }],
           [
             {
               text: "تابعنا على انستغرام",
