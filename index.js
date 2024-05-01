@@ -221,7 +221,7 @@ Keep sharing your link with others.
   });
 });
 
-bot.action("invite", async(ctx)=>{
+bot.command("invite", async(ctx)=>{
   queue.enqueue( async ()=>{
     await showLeaderboard(bot, ctx);
   })
@@ -254,7 +254,7 @@ bot.telegram.setMyCommands([
   },
   {
     command: "invite",
-    description: "See the referral leaderboard.",
+    description: "See the referral leaderboard",
   },
 ]);
 
